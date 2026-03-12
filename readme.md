@@ -96,4 +96,5 @@ If you are running on a laptop or want to save system resources for gaming, you 
 | **Ideal For** | Complex Science/Math | General Worksheets |
 
 ---
-*Disclaimer: This software is for research and personal organization. Use responsibly according to school policies.*
+*Disclaimer: This software is for research and personal organization. Use responsibly according to school policies.
+make sure you open auto_bot and put your school url where you need too!*
