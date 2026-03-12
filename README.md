@@ -5,7 +5,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Security](https://img.shields.io/badge/Privacy-Localized-orange)
 
-AutoCanvas is a localized automation tool designed to bridge the gap between [Canvas LMS](https://fhsd.instructure.com) and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
+AutoCanvas is a localized automation tool designed to bridge the gap between [Canvas LMS]([https://canvas.instructure.com](https://www.instructure.com/canvas/login)) and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
 
 ---
 
@@ -37,7 +37,7 @@ The script requires [Ollama](https://ollama.com/) to host the AI model locally.
 3. Open the folder you just extracted.
 
 #### Phase D: Canvas Integration
-1. Go to your [Canvas Settings](https://fhsd.instructure.com/profile/settings).
+1. Go to your [Canvas Settings](https://canvas.instructure.com/profile/settings).
 2. Click **+ New Access Token**.
 3. Open the `.env` file in the project folder with Notepad.
 4. Paste your token after the `=` sign: `CANVAS_TOKEN=your_token_here`
