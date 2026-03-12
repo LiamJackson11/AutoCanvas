@@ -1,55 +1,84 @@
-# AutoCanvas: The Homework Helper
+# AutoCanvas: The Homework Automation Suite
 
-This is an automated tool that logs into your Canvas, finds your assignments, and uses AI to solve them for you. It saves the finished work into folders on your computer so you can just copy-paste the answers and turn them in.
+AutoCanvas is a localized tool designed to synchronize with your Canvas LMS account, identify pending assignments, and utilize a local Artificial Intelligence model to generate completed worksheets. 
 
----
-
-##  Read This First
-1. **It’s Free:** You are using your own computer's power to run the AI, so you never have to pay for a subscription.
-2. **It’s Private:** The school cannot see that you are using AI because it runs locally on your machine, not on a website.
-3. **It’s Stealthy:** The bot "types" like a human and adds small delays so it doesn't look like a robot.
+> **Notice:** The finished files are organized into subdirectories by course name on your local machine. This script includes stealth delays to mimic human interaction speeds.
 
 ---
 
-##  How to Set It Up (The Easy Way)
+### Core Advantages
 
-### 1. Install the "Brain" (Ollama)
-The AI needs a "brain" to think. 
-* Go to [Ollama.com](https://ollama.com/) and click **Download**.
-* Run the installer just like any other game or app.
-* Once it's installed, a little llama icon will appear in your taskbar.
-
-### 2. Get the Code
-Since you are on this page, look for the green button at the top right that says **Code**.
-* Click it, then click **Download ZIP**.
-* **Important:** Find that folder in your "Downloads," right-click it, and select **Extract All** (this is how you "unzip" it so it works).
-
-### 3. Install Python
-The script runs on a language called Python.
-* Go to [Python.org](https://www.python.org/downloads/) and download the latest version.
-* **CRITICAL:** When installing, make sure you check the box that says **"Add Python to PATH"** at the bottom of the installer. If you miss this, the bot won't work!
-
-### 4. Setup your "Key"
-The bot needs permission to see your Canvas.
-1. Log into Canvas on your browser.
-2. Click **Account** -> **Settings**.
-3. Scroll down to **Approved Purposed** and click **+ New Access Token**.
-4. Copy that long string of random letters.
-5. In the bot folder, find the file named `.env` (open it with Notepad).
-6. Paste your code after `CANVAS_TOKEN=` and save the file.
+| Feature | Detail |
+| :--- | :--- |
+| **Cost** | Completely free. Uses your own computer hardware to run the AI. |
+| **Privacy** | The AI runs locally. No data is sent to external AI servers. |
+| **Stealth** | Emulates human typing patterns and check intervals to avoid detection. |
+| **Efficiency** | Automatically skips assignments you have already completed locally. |
 
 ---
 
-##  How to Run It
-1. Open the folder where you put the code.
-2. Click the bar at the top of your file window (where the folder name is), type `cmd`, and hit Enter.
-3. Type this and hit Enter (it installs the last few pieces):
+### Setup Instructions
+
+#### 1. Install the Artificial Intelligence Framework (Ollama)
+The script requires a local AI engine to process worksheet text and generate answers.
+* Visit the official Ollama website and download the installer.
+* Run the setup file as you would any standard application.
+* **Important:** Ensure the Ollama application is running in your system tray before starting the bot.
+* Open your terminal and type `ollama pull mistral-nemo` to download the required AI model.
+
+#### 2. Download and Extract the Source Code
+* Click the green **Code** button at the top of this GitHub repository.
+* Select **Download ZIP**.
+* Locate the file in your Downloads folder.
+* **Requirement:** Right-click the file and select **Extract All**. Running the script from within a compressed (.zip) folder will cause the bot to fail.
+
+#### 3. Install Python
+The automation is built on the Python programming language. 
+* Download the latest version from Python.org.
+* **CRITICAL:** You must check the box labeled **Add Python to PATH** during the installation process. If this is missed, the "python" command will not be recognized by your computer.
+
+#### 4. Configure your Canvas Access Token
+The bot requires a secure "key" to view your assignments.
+1. Log into your Canvas account via a web browser.
+2. Navigate to **Account** > **Settings**.
+3. Locate the **Approved Purposes** section and select **+ New Access Token**.
+4. Copy the character string generated.
+5. In your project folder, open the `.env` file with Notepad.
+6. Paste your string after `CANVAS_TOKEN=` and save the file.
+
+---
+
+### Operational Steps
+
+To start the automation, follow these steps exactly:
+
+1. Open your project folder in File Explorer.
+2. Click the address bar at the top of the window, type `cmd`, and press **Enter**.
+3. In the command window, paste the following to install the necessary software libraries:
    `pip install canvasapi openai python-docx python-dotenv requests`
-4. Type this to start the bot:
+4. Execute the script by typing:
    `python auto_bot.py`
 
 ---
 
-##  Where is my homework?
-Once the bot finished, a new folder will appear called **Completed_Homework**. 
-Inside, you will see folders for each of your classes (like "Algebra" or "History"). Open them up, and your finished worksheets will be waiting for you!
+### Accessing Completed Work
+
+Once the script identifies and solves an assignment, it creates a directory called `Completed_Homework`.
+
+* **Organization:** Assignments are automatically sorted into folders named after your specific classes (e.g., Spanish 2, Physical Science).
+* **File Format:** Files are saved as `.docx` (Microsoft Word) documents.
+* **Duplicate Prevention:** The script checks your local folders before running. If a file already exists, the bot will skip it to save time and system resources.
+
+---
+
+### Troubleshooting Common Errors
+
+| Error Message | Likely Cause | Solution |
+| :--- | :--- | :--- |
+| **'python' is not recognized** | Path Error | Re-install Python and ensure "Add to PATH" is checked. |
+| **401 Unauthorized** | Token Error | Your Canvas Token is incorrect. Generate a new one in Settings. |
+| **ConnectionRefusedError** | AI Error | Ensure Ollama is open and running in your taskbar. |
+| **FileNotFound** | Extraction Error | Ensure you clicked "Extract All" on the zip file. |
+
+---
+*Disclaimer: This software is intended for research and personal organization. Users are responsible for ensuring their use of this tool complies with their specific institutional policies and academic integrity guidelines.*
