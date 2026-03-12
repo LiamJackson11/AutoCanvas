@@ -34,7 +34,7 @@ The script requires [Ollama](https://ollama.com/) to host the AI model locally.
 2. **IMPORTANT:** During installation, check the box that says **"Add Python to PATH"**.
 
 #### Phase C: Project Preparation
-1. Download this repository as a ZIP file.
+1. Download this repository as a ZIP file. (green button thaf says code in the tol right corner)
 2. **Right-click** the ZIP in your Downloads and select **Extract All**.
 3. Open the folder you just extracted.
 
