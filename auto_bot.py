@@ -102,7 +102,7 @@ def ai_fill_worksheet(worksheet_text):
     """Sends the worksheet to AI to fill in the blanks and answer questions."""
     prompt = f"""
     You are a 16-year-old high school student. 
-    Your name is test test and you are in 9th grade.
+    Your name is Liam Jackson and you are in 9th grade (so put your name as Liam Jackson on the assignment).
     Here is a worksheet or assignment document. 
     Your job is to read it, find the questions or the blank spaces (like ______), 
     and fill them in with the correct answers. 
@@ -204,63 +204,83 @@ def main():
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
-    for course in courses:
-        logging.info(f"--- Scanning Course: {course.name} ---")
-        time.sleep(random.uniform(5.5, 10.0)) 
+        for course in courses:
+            logging.info(f"--- Scanning Course: {course.name} ---")
+            time.sleep(random.uniform(5.5, 10.0)) 
         
-        try:
-            # Change "upcoming" to "all" to make sure we don't miss anything
-            assignments = list(course.get_assignments())
+            # We add per_page=100 to grab everything in one big chunk
+            assignments = list(course.get_assignments(per_page=100))
             
             if not assignments:
                 logging.info(f"  -> No assignments found at all for {course.name}")
-                continue
-
-            for assignment in assignments:
-                # Check if you already submitted it
-                submission = assignment.get_submission(user.id)
-                if submission.workflow_state != 'unsubmitted':
-                    # This skips anything already graded or turned in
-                    continue
-
-                description = getattr(assignment, 'description', "") or ""
-                safe_name = "".join([c for c in assignment.name if c.isalnum() or c==' ']).strip()
-                
-                # Step 1: Find the Links
-                gdoc_links = find_gdoc_links(description)
-                
-                if not gdoc_links:
-                    # We only log this if we're actively looking for docs
-                    continue
-                
-                # Step 2: Download
-                gdoc_url = gdoc_links[0]
-                logging.info(f"  [FOUND] Downloading template for: {assignment.name}")
-                temp_filepath = download_gdoc_as_docx(gdoc_url, safe_name)
-                
-                if temp_filepath:
-                    # Step 3: AI Solve
-                    logging.info(f"  [AI] Solving worksheet: {assignment.name}...")
-                    worksheet_text = extract_text_from_docx(temp_filepath)
-                    completed_text = ai_fill_worksheet(worksheet_text)
-                    
-                    # Step 5: Save the finished file (added course.name here)
-                    final_file = create_completed_docx(course.name, safe_name, completed_text)
-                    logging.info(f"[SUCCESS] Saved to folder: {course.name} -> {final_file}")
-                    
-                    # Cleanup
-                    if os.path.exists(temp_filepath):
-                        os.remove(temp_filepath)
-                
-                # Wait between assignments so it looks human
-                time.sleep(random.uniform(12.0, 25.0))
-
-        except Exception as e:
-            logging.error(f"Error in {course.name}: {e}")
             continue
+
+        for assignment in assignments:
+                try:
+                    # Check if you already submitted it
+                    submission = assignment.get_submission(user.id)
+                    if submission.workflow_state != 'unsubmitted':
+                        # This skips anything already graded or turned in
+                        continue
+
+                    description = getattr(assignment, 'description', "") or ""
+                    # If there's no description, don't even bother
+                    if not description:
+                        continue
+
+                    safe_name = "".join([c for c in assignment.name if c.isalnum() or c==' ']).strip()
+                    
+                    # --- NEW CHECK: Skip if we already generated a file for this ---
+                    safe_course = "".join([c for c in course.name if c.isalnum() or c==' ']).strip()
+                    expected_filepath = os.path.join(OUTPUT_DIR, safe_course, f"[DONE] {safe_name}.docx")
+                    
+                    if os.path.exists(expected_filepath):
+                        logging.info(f"  [SKIP] Already finished locally: {assignment.name}")
+                        continue
+                    # ---------------------------------------------------------------
+
+                    # Step 1: Find the Links
+                    gdoc_links = find_gdoc_links(description)
+                    
+                    if not gdoc_links:
+                        # We only log this if we're actively looking for docs
+                        continue
+                    
+                    # Step 2: Download
+                    gdoc_url = gdoc_links[0]
+                    logging.info(f"  [FOUND] Downloading template for: {assignment.name}")
+                    temp_filepath = download_gdoc_as_docx(gdoc_url, safe_name)
+                    
+                    if temp_filepath:
+                        # Step 3: AI Solve
+                        logging.info(f"  [AI] Solving worksheet: {assignment.name}...")
+                        worksheet_text = extract_text_from_docx(temp_filepath)
+                        completed_text = ai_fill_worksheet(worksheet_text)
+                        
+                        # Step 5: Save the finished file (added course.name here)
+                        final_file = create_completed_docx(course.name, safe_name, completed_text)
+                        logging.info(f"[SUCCESS] Saved to folder: {course.name} -> {final_file}")
+                        
+                        # Cleanup
+                        if os.path.exists(temp_filepath):
+                            os.remove(temp_filepath)
+                    
+                    # Wait between assignments so it looks human
+                    time.sleep(random.uniform(12.0, 25.0))
+
+                except Exception as inner_e:
+                    logging.warning(f"Skipping assignment {getattr(assignment, 'name', 'Unknown')} due to error: {inner_e}")
+                    continue
+
+                except Exception as e:
+                    logging.error(f"Error in {course.name}: {e}")
+                continue
 
     logging.info("Scan Complete. Check the 'Completed_Homework' folder.")
 
 if __name__ == "__main__":
-
     main()
+    logging.info("========================================")
+    logging.info("SCAN COMPLETE: All courses processed.")
+    logging.info("========================================")
+    print("\nSuccess! Check your folders for the new work.")
