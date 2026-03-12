@@ -1,19 +1,21 @@
-# AutoCanvas: The Homework Automation Guides both lite & normal Version
+# AutoCanvas: The Homework Automation Suite
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue)
 ![AI Model](https://img.shields.io/badge/AI-Mistral--Nemo-green)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Security](https://img.shields.io/badge/Privacy-Localized-orange)
 
-AutoCanvas is a localized automation tool designed to bridge the gap between [Canvas LMS]([https://canvase.instructure.com](https://www.instructure.com/canvas/login)) and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
+AutoCanvas is a localized automation tool designed to bridge the gap between [your school]'s Canvas LMS account and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
 
 ---
 
-### 1. System Requirements
-To ensure the AI runs efficiently, the following are recommended:
-* **GPU:** NVIDIA RTX 10-series 30-series+ (8GB or 3/2GB+ VRAM).
-* **OS:** Windows 10 or 11.
-* **Storage:** 10GB of free space.
+### 1. System Requirements & Device Compatibility
+
+This program runs **locally** on your hardware. It is compatible with **Windows, macOS, and Linux**. It cannot run on mobile devices (iOS/Android) or standard school Chromebooks.
+
+* **Standard Mode:** NVIDIA RTX 30-series or 40-series (8GB+ VRAM).
+* **Lite Mode:** Older NVIDIA cards (GTX 1060+) or Integrated Graphics (Intel Iris/AMD Radeon).
+* **Apple Mac:** Any M1, M2, or M3 chip with at least 8GB of memory.
 
 ---
 
@@ -23,78 +25,52 @@ To ensure the AI runs efficiently, the following are recommended:
 The script requires [Ollama](https://ollama.com/) to host the AI model locally.
 1. Download and install [Ollama for Windows](https://ollama.com/download/windows).
 2. Ensure the "Llama" icon is visible in your Windows taskbar.
-3. Open your **Command Prompt (CMD)** and run the command for your chosen model:
-   
-   **Standard (High Quality):** `ollama pull mistral-nemo`
-   
-   **Lite (Low VRAM):** `ollama pull llama3.2`
+3. Open your **Command Prompt (CMD)** and run this command:
+   `ollama pull mistral-nemo`
 
 #### Phase B: Python Setup
 1. Visit [Python.org](https://www.python.org/downloads/) and download the latest version.
 2. **IMPORTANT:** During installation, check the box that says **"Add Python to PATH"**.
 
 #### Phase C: Project Preparation
-1. Download this repository as a ZIP file. (green button thaf says code in the tol right corner)
+1. Download this repository as a ZIP file.
 2. **Right-click** the ZIP in your Downloads and select **Extract All**.
 3. Open the folder you just extracted.
 
-#### Phase D: Canvas Integration
-1. Go to your [Canvas Settings]([https://fhsd.instructure.com/profile/settings](https://www.instructure.com/canvas/login)).
-2. Click **+ New Access Token**.
-3. Open the `.env` file in the project folder with Notepad.
-4. Paste your token after the `=` sign: `CANVAS_TOKEN=your_token_here`
-
 ---
 
-### 3. Running the Automation
+### 3. Setting Up Your Connection (.env File)
 
+The bot needs two things to work: your school's website link and your private access token.
+
+#### Step 1: Find Your School Link
+1. Log into your school Canvas account in your browser.
+2. Look at the address bar at the top.
+3. Copy the part that ends in `.instructure.com`.
+   * **Correct:** `https://[your-school].instructure.com`
+   * **Incorrect:** `https://[your-school].instructure.com/courses/12345/modules`
+
+#### Step 2: Create the .env File
+1. Open **Notepad** on your computer.
+2. Paste these two lines into the blank window:
+   ```text
+   CANVAS_URL=https://[your-school].instructure.com
+   CANVAS_TOKEN=your_token_here
+
+4. Running the Automation
 1. Open your project folder.
-2. Click the address bar at the top, type `cmd`, and press **Enter**.
-3. **Install libraries (First time only):**
-   
-   `pip install canvasapi openai python-docx python-dotenv requests`
-
-4. **Start the bot:**
-   
-   `python auto_bot.py`
-
----
-
-### 4. Key Features
-
-* **Smart Scan:** The bot checks your `Completed_Homework` folder. If a file already exists, it logs `[SKIP]` to save time.
-* **Stealth Mode:** Uses randomized delays (10–25 seconds) to mimic a human student.
-* **Auto-Folder:** Automatically sorts work into folders like `Spanish 2` or `Physical Science`.
-
----
-
-### 5. Troubleshooting
-
-| Error | Solution |
-| :--- | :--- |
-| **'python' not recognized** | Re-install Python and check the "Add to PATH" box. |
-| **401 Unauthorized** | Your Canvas Token is incorrect or expired. |
-| **Connection Error** | Ensure Ollama is open in your Windows taskbar. |
-
----
-
-### 6. Lite Edition (Low VRAM / Faster Processing)
-
-If you are running on a laptop or want to save system resources for gaming, you can use the Lite Edition. This uses the **Llama 3.2 3B** model, which only requires **~3GB of VRAM**.
-
-**To use the Lite version:**
-1. Run `ollama pull llama3.2` in your command prompt.
-2. Open `auto_bot.py` and change the line `AI_MODEL = "mistral-nemo"` to `AI_MODEL = "llama3.2"`.
-
-**Model Comparison:**
-
-| Feature | Mistral-Nemo (Standard) | Llama 3.2 (Lite) |
-| :--- | :--- | :--- |
-| **VRAM Usage** | ~8GB to 10GB | **~2.5GB** |
-| **Speed** | Moderate | **Fast** |
-| **Accuracy** | Highest | Good |
-| **Ideal For** | Complex Science/Math | General Worksheets |
-
----
-*Disclaimer: This software is for research and personal organization. Use responsibly according to school policies.
-make sure you open auto_bot and put your school url where you need too!*
+2. Click the address bar at the top, type cmd, and press Enter.
+3. Install libraries (First time only):
+pip install canvasapi openai python-docx python-dotenv requests
+4. Start the bot:
+python auto_bot.py
+5. Key Features
+• Smart Scan: The bot checks your Completed_Homework folder. If a file already exists, it logs [SKIP] to save time.
+• Stealth Mode: Uses randomized delays (10–25 seconds) to mimic a human student.
+• Auto-Folder: Automatically sorts work into folders like Spanish 2 or Physical Science.
+⚡ Low VRAM Edition (For Older PCs or Laptops)
+If your computer is struggling, use the Llama 3.2 model instead:
+1. Run ollama pull llama3.2 in CMD.
+2. Open auto_bot.py in Notepad.
+3. Change AI_MODEL = "mistral-nemo" to AI_MODEL = "llama3.2".
+Disclaimer: This software is for research and personal organization. Use responsibly according to school policies.
