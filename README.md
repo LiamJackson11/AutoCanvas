@@ -1,17 +1,17 @@
-# 🤖 AutoCanvas: The Homework Helper
+# AutoCanvas: The Homework Helper
 
 This is an automated tool that logs into your Canvas, finds your assignments, and uses AI to solve them for you. It saves the finished work into folders on your computer so you can just copy-paste the answers and turn them in.
 
 ---
 
-## 🛑 Read This First
+##  Read This First
 1. **It’s Free:** You are using your own computer's power to run the AI, so you never have to pay for a subscription.
 2. **It’s Private:** The school cannot see that you are using AI because it runs locally on your machine, not on a website.
 3. **It’s Stealthy:** The bot "types" like a human and adds small delays so it doesn't look like a robot.
 
 ---
 
-## 🛠 How to Set It Up (The Easy Way)
+##  How to Set It Up (The Easy Way)
 
 ### 1. Install the "Brain" (Ollama)
 The AI needs a "brain" to think. 
@@ -40,7 +40,7 @@ The bot needs permission to see your Canvas.
 
 ---
 
-## 🚀 How to Run It
+##  How to Run It
 1. Open the folder where you put the code.
 2. Click the bar at the top of your file window (where the folder name is), type `cmd`, and hit Enter.
 3. Type this and hit Enter (it installs the last few pieces):
@@ -50,6 +50,6 @@ The bot needs permission to see your Canvas.
 
 ---
 
-## 📂 Where is my homework?
+##  Where is my homework?
 Once the bot finished, a new folder will appear called **Completed_Homework**. 
 Inside, you will see folders for each of your classes (like "Algebra" or "History"). Open them up, and your finished worksheets will be waiting for you!
