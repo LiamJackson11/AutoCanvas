@@ -2,32 +2,32 @@
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue)
 ![AI Model](https://img.shields.io/badge/AI-Mistral--Nemo-green)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen)
-![Security](https://img.shields.io/badge/Privacy-Localized-orange)
+![License](https://img.shields.io/badge/Status-Active-brightgreen)
 
-AutoCanvas is a specialized automation tool designed to bridge the gap between [Canvas LMS](https://fhsd.instructure.com) and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
+AutoCanvas is a localized tool designed to synchronize with your [Canvas LMS](https://fhsd.instructure.com) account, identify pending assignments, and utilize a local Artificial Intelligence model to generate completed worksheets. 
 
-> **Privacy Commitment:** This tool is 100% localized. Your Canvas token and assignment data never leave your machine. No external AI services (like ChatGPT or Gemini) are used; all processing happens on your own hardware.
-
----
-
-### 1. System Requirements & Prerequisites
-To ensure the AI runs efficiently on your machine, the following are recommended:
-* **Graphics Card (GPU):** NVIDIA RTX 30-series or 40-series (8GB+ VRAM recommended for Mistral-Nemo).
-* **Operating System:** Windows 10 or 11.
-* **Storage:** 10GB of free space for the local AI "brain."
+> **Important:** The finished files are organized into subdirectories by course name on your local machine.
 
 ---
 
-### 2. Comprehensive Installation Guide
+### Core Advantages
 
-#### Phase A: The AI Engine (Ollama)
-The script requires [Ollama](https://ollama.com/) to host the AI model locally on your GPU.
-1. Download the [Ollama for Windows Installer](https://ollama.com/download/windows).
-2. Install the application and ensure the "Llama" icon is visible in your Windows taskbar.
-3. Open your **Command Prompt (CMD)** and run the following command to download the model:
+| Feature | Detail |
+| :--- | :--- |
+| **Cost** | Completely free. Uses your own computer hardware to run the AI. |
+| **Privacy** | The AI runs locally. No data is sent to external AI servers. |
+| **Stealth** | Emulates human typing patterns and check intervals to avoid detection. |
 
+---
+
+### Setup Instructions
+
+#### 1. Install the Artificial Intelligence Framework
+The script requires a local AI engine to process worksheet text and generate answers.
+* Download and install [Ollama for Windows](https://ollama.com/download/windows).
+* Once installed, open your Command Prompt and run this command to download the "brain":
+```diff
 + ollama pull mistral-nemo
-Phase B: Python SetupVisit Python.org and download the latest version for Windows.CRITICAL: During installation, you MUST check the box that says "Add Python to PATH".Complete the installation.Phase C: Project PreparationDownload this repository as a ZIP file (Green Code button > Download ZIP).Locate the ZIP in your Downloads folder, right-click it, and select Extract All.Open the newly extracted folder.Phase D: Canvas IntegrationLog into your Canvas Settings.Scroll down to Approved Purposes and click + New Access Token.Copy the long character string (Token).Find the file named .env in your project folder, open it with Notepad, and paste your token:Diff+ CANVAS_TOKEN=your_private_token_here
-3. Running the AutomationFollow these steps every time you want to scan for new homework:Open your project folder in File Explorer.Click into the address bar at the top, type cmd, and press Enter.First-time only: Install the required software libraries by pasting this:pip install canvasapi openai python-docx python-dotenv requestsStart the bot: Type the following command:Diff+ python auto_bot.py
-4. Key Features & LogicIntelligent Duplicate CheckThe bot performs a "Smart Scan" before processing. It checks your Completed_Homework folder for existing filenames. If a worksheet is already finished, the bot logs [SKIP] and moves to the next item instantly.Stealth & Human SimulationTo remain undetected, the bot uses the following logic:Varied Delays: It waits between 10–25 seconds between actions to mimic human reading and navigation speeds.Persona Calibration: The AI is instructed to write as "Liam Jackson," a 9th-grade student, using age-appropriate vocabulary to avoid being flagged by professional-grade AI detectors.Automated OrganizationAll work is automatically sorted into class-specific folders:Completed_Homework/Spanish 2/Physical Science/Algebra 1/5. TroubleshootingErrorCauseResolution'python' is not recognizedPath ConfigurationRe-install Python and ensure "Add to PATH" is checked.401 UnauthorizedInvalid TokenYour Canvas Token is incorrect or has expired. Generate a new one in Settings.ConnectionRefusedOllama OfflineEnsure the Ollama app is running in your Windows taskbar.Missing Google DocLink TypeThe bot currently only supports assignments that provide a Google Doc link in the description.Disclaimer: This software is intended for research and personal organization. Users are responsible for ensuring their use of this tool complies with FHSD institutional policies and academic integrity guidelines.
+2. Download and Extract the Source CodeClick the Code button at the top of this page and select Download ZIP.Requirement: Right-click the file in your Downloads and select Extract All.3. Install PythonThe automation is built on the Python programming language.Download the latest installer.CRITICAL: You must check the box labeled "Add Python to PATH" during installation.4. Configure your Canvas Access TokenLog into your Canvas Account.Navigate to Account > Settings.Select + New Access Token.In your project folder, open the .env file with Notepad and paste your key:Diff+ CANVAS_TOKEN=your_token_here_12345
+Operational StepsTo start the automation:Open your project folder.Click the address bar at the top, type cmd, and press Enter.Install the software libraries:pip install canvasapi openai python-docx python-dotenv requestsExecute the script:Diff+ python auto_bot.py
+Accessing Completed WorkOnce the script identifies and solves an assignment, it creates a directory called Completed_Homework.Organization: Sorted by class name (e.g., Spanish 2, Physical Science).Duplicate Prevention: If a file already exists, the bot will skip it automatically.Troubleshooting Common ErrorsErrorSolution'python' not recognizedRe-install Python and check the "Add to PATH" box.401 UnauthorizedYour Canvas Token is incorrect or expired.Connection ErrorEnsure Ollama is open in your Windows Taskbar.Disclaimer: This software is intended for research and personal organization. Users are responsible for ensuring their use of this tool complies with institutional policies.
