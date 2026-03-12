@@ -32,7 +32,7 @@ nearby_keys = {
 }
 
 # --- 1. SETTINGS & CREDENTIALS ---
-CANVAS_URL = "https://fhsd.instructure.com"
+CANVAS_URL = "https://YourSchool.instructure.com" # put your school where it says YourSchool
 CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
 OUTPUT_DIR = "Completed_Homework"
 
@@ -102,7 +102,7 @@ def ai_fill_worksheet(worksheet_text):
     """Sends the worksheet to AI to fill in the blanks and answer questions."""
     prompt = f"""
     You are a 16-year-old high school student. 
-    Your name is Liam Jackson and you are in 9th grade (so put your name as Liam Jackson on the assignment).
+    Your name is your name and you are in 9th grade (so put your name as your name on the assignment). # edit if you want to change these 
     Here is a worksheet or assignment document. 
     Your job is to read it, find the questions or the blank spaces (like ______), 
     and fill them in with the correct answers. 
@@ -283,4 +283,5 @@ if __name__ == "__main__":
     logging.info("========================================")
     logging.info("SCAN COMPLETE: All courses processed.")
     logging.info("========================================")
+
     print("\nSuccess! Check your folders for the new work.")
