@@ -1,11 +1,3 @@
-Instructions:
-Create a new file in your C:\Canvas scanner folder.
-
-Name it README.md.
-
-Paste the following text into it.
-
-Markdown
 # 🎓Canvas Auto-Homework Machine
 
 An automated pipeline that scans Francis Howell Canvas courses, downloads Google Doc worksheets, and uses a local **Mistral-Nemo (12B)** AI model to solve them.
