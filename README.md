@@ -1,63 +1,68 @@
-🤖 Autonomous Canvas Assignment Solver
-This project is a Python-based automation tool that scans Canvas LMS courses, identifies assignments containing Google Doc templates, downloads them, and utilizes a local Large Language Model (LLM) via Ollama to solve the worksheets automatically.
+# Autonomous Assignment Processing Pipeline
+**A localized AI-driven automation suite for Canvas LMS integration.**
 
-✨ Features
-Local AI Inference: Powered by mistral-nemo (or any Ollama model). Your data never leaves your machine.
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![NVIDIA](https://img.shields.io/badge/nvidid-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
 
-Automatic Organization: Assignments are saved in sub-folders named after their respective courses.
+---
 
-Stealth Mode: Includes randomized "human-like" delays and typing jitter to avoid detection.
+## System Overview
+This project provides an end-to-end solution for synchronizing Canvas LMS assignments with local Large Language Models (LLMs). It automates the extraction of Google Doc templates, performs local inference using NVIDIA hardware, and organizes completed outputs into structured directories.
 
-Format Preservation: Downloads .docx files, processes text, and exports a clean, finished document.
 
-🚀 Getting Started
-1. Prerequisites
-Python 3.10+
 
-Ollama: Download here
+## Core Functionalities
+| Feature | Implementation |
+| :--- | :--- |
+| **API Integration** | Bi-directional communication with Canvas LMS REST API. |
+| **Local Inference** | High-performance execution via Ollama (Mistral-Nemo/Llama 3.1). |
+| **Data Extraction** | Regex-based Google Doc link harvesting and DOCX conversion. |
+| **File Management** | Automatic directory stratification based on Course ID/Name. |
+| **Stealth Logic** | Randomized request intervals and simulated typing latency. |
 
-Hardware: An NVIDIA GPU (RTX 3060 or higher) is recommended for running mistral-nemo locally.
+## Technical Requirements
+### Hardware
+* **GPU:** NVIDIA RTX 30-series or 40-series (12GB+ VRAM recommended).
+* **RAM:** 16GB+ (DDR5 preferred for high-speed context swapping).
 
-2. Installation
-Clone the repository:
+### Software
+* **Ollama Runtime:** Required for local model hosting.
+* **Python 3.10+:** Required for script execution.
 
-Bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
-Install dependencies:
+## Installation and Deployment
+
+### 1. Model Preparation
+Initialize the local inference engine by pulling the required model weights:
+```bash
+ollama pull mistral-nemo
+2. Dependency Installation
+Install the required Python modules via pip:
 
 Bash
 pip install canvasapi openai python-docx python-dotenv requests
-Pull the AI model:
-
-Bash
-ollama pull mistral-nemo
-3. Configuration
-Create a file named .env in the root folder and add your credentials:
+3. Environment Configuration
+Create a .env file in the project root. Ensure the CANVAS_URL matches your institution's specific subdomain:
 
 Code snippet
-# Your Canvas domain (e.g., https://yourshcool.instructure.com)
-CANVAS_URL=https://<YOUR_SCHOOL_SUBDOMAIN>.instructure.com
+CANVAS_URL=https://<INSTITUTION>.instructure.com
+CANVAS_TOKEN=YOUR_API_ACCESS_TOKEN
+Operational Workflow
+The execution follows a linear pipeline to ensure data integrity:
 
-# Your Canvas API Token (Generated in Canvas Settings > Approved Purposed)
-CANVAS_TOKEN=your_access_token_here
-🛠 Usage
-Ensure Ollama is running on your system.
+Scanning: The script queries the Canvas API for unsubmitted assignments.
 
-Execute the main script:
+Parsing: Assignment descriptions are parsed for valid document links.
 
-Bash
-python auto_bot.py
-Check the Completed_Homework folder for your organized, AI-solved assignments.
+Inference: The 12B parameter model processes the worksheet text locally.
 
-📝 Configuration Settings
-You can tweak the "Student Voice" in auto_bot.py by adjusting these variables:
+Finalization: A formatted .docx is generated and saved to the course-specific subdirectory.
 
-MISTAKE_CHANCE: Frequency of intentional typos.
+Security and Privacy
+Zero-Cloud Traffic: All AI processing is performed on the local GPU; no prompt data is transmitted to third-party providers.
 
-PAUSE_DURATION: How long the bot "thinks" between actions.
+Metadata Scrubbing: It is recommended to clear document metadata prior to final upload.
 
-AI_MODEL: Swap to llama3.1 if you have less than 10GB of VRAM.
+Token Protection: Ensure the .env file is included in your .gitignore to prevent credential exposure.
 
-⚖️ License & Disclaimer
-This project is for educational and research purposes only. Using this tool to complete school assignments may violate your institution's Academic Integrity Policy. Use responsibly.
+This software is intended for research and workflow automation. Users must adhere to their institution's academic honesty policies.
