@@ -1,4 +1,4 @@
-# 🤖 AutoCanvas: The Homework Automation guide
+# AutoCanvas: The Homework Automation guide
 
 <div align="center">
 
