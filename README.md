@@ -1,33 +1,33 @@
-# AutoCanvas: The Homework Automation Guide
+# AutoCanvas: The Homework Automation Suite
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue)
 ![AI Model](https://img.shields.io/badge/AI-Mistral--Nemo-green)
-![License](https://img.shields.io/badge/Status-Active-brightgreen)
-![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![Security](https://img.shields.io/badge/Privacy-Localized-orange)
 
-AutoCanvas is a localized automation framework designed to bridge the gap between [Canvas LMS](https://fhsd.instructure.com) and local Large Language Models (LLMs). It autonomously identifies pending assignments, extracts content from linked Google Docs, and utilizes a private AI instance to generate completed versions of your worksheets.
+AutoCanvas is a specialized automation tool designed to bridge the gap between [Canvas LMS](https://fhsd.instructure.com) and local Large Language Models (LLMs). It autonomously scans your courses, identifies assignments containing Google Doc templates, and utilizes a private AI instance to generate completed versions of your worksheets.
 
-> **Privacy Guarantee:** Unlike web-based AI tools, AutoCanvas processes all assignment data on your local hardware. No academic data is transmitted to third-party servers.
-
----
-
-### 1. Pre-Flight Checklist
-Before beginning the setup, ensure your system meets these hardware requirements for smooth AI performance:
-* **GPU:** NVIDIA RTX 30-series or 40-series (8GB+ VRAM recommended).
-* **RAM:** 16GB Minimum.
-* **Storage:** 10GB of free space for AI model weights.
-* **Browser:** Any modern browser logged into your school Canvas account.
+> **Privacy Commitment:** This tool is 100% localized. Your Canvas token and assignment data never leave your machine. No external AI services (like ChatGPT or Gemini) are used; all processing happens on your own hardware.
 
 ---
 
-### 2. Full Installation Guide
+### 1. System Requirements & Prerequisites
+To ensure the AI runs efficiently on your machine, the following are recommended:
+* **Graphics Card (GPU):** NVIDIA RTX 30-series or 40-series (8GB+ VRAM recommended for Mistral-Nemo).
+* **Operating System:** Windows 10 or 11.
+* **Storage:** 10GB of free space for the local AI "brain."
+
+---
+
+### 2. Comprehensive Installation Guide
 
 #### Phase A: The AI Engine (Ollama)
-The "brain" of this project runs on **Ollama**, which allows your graphics card to think without an internet connection.
-1. Visit [Ollama.com](https://ollama.com/download/windows) and download the installer.
-2. Run the application and follow the on-screen prompts.
-3. Once the llama icon appears in your taskbar, open your **Command Prompt (CMD)** and type:
-```diff
+The script requires [Ollama](https://ollama.com/) to host the AI model locally on your GPU.
+1. Download the [Ollama for Windows Installer](https://ollama.com/download/windows).
+2. Install the application and ensure the "Llama" icon is visible in your Windows taskbar.
+3. Open your **Command Prompt (CMD)** and run the following command to download the model:
+
 + ollama pull mistral-nemo
-This will download approximately 7GB of data. Do not close the window until it reaches 100%.Phase B: Python EnvironmentThe script is written in Python. Without it, your computer won't know how to read the bot's instructions.Download the latest version from Python.org.Important: When the installer opens, you MUST check the box at the bottom that says "Add Python to PATH".Click "Install Now."Phase C: Project SetupDownload the code from this repository using the Code > Download ZIP button.Extraction: Locate the file in your Downloads. Right-click it and select Extract All. This creates a regular folder you can actually work in.The Secret Key: * Navigate to your Canvas Settings.Click + New Access Token.Give it a name (e.g., "Bot") and click Generate.Open the .env file in the project folder with Notepad and paste the key after the = sign.3. How to Execute the BotOpen the project folder you just extracted.In the folder's top address bar, type cmd and hit Enter.Initialize Dependencies: Copy and paste this line into the black window:pip install canvasapi openai python-docx python-dotenv requestsLaunch: Start the automation by typing:Diff+ python auto_bot.py
-4. Detailed Feature BreakdownDynamic Folder OrganizationThe bot doesn't just dump files everywhere. It reads your Canvas data and builds a clean directory structure:Completed_Homework/Physical Science/ -> [DONE] Worksheet_1.docxSpanish 2/ -> [DONE] Vocab_Practice.docxIntelligent Duplicate DetectionTo save you from hitting your GPU too hard, the bot performs a Local File Hash Check. If it sees a file with the same name already exists in your "Completed" folder, it skips it instantly, allowing it to find new work much faster.Stealth & Detection AvoidanceRandomized Intervals: The bot waits between 10 and 25 seconds between assignments to mimic a human browsing a page.Humanized AI: The prompt is hard-coded to use 9th-grade vocabulary and a "student persona" to ensure the writing style doesn't trigger AI detectors that look for overly professional "corporate" talk.5. Common TroubleshootingIssueRoot CauseResolutionConnectionRefusedErrorOllama is closedClick the Ollama icon in your Start Menu to wake it up.ModuleNotFoundErrorMissing librariesRe-run the pip install command from step 3.Empty FoldersAssignment TypeThe bot currently only looks for assignments with Google Doc links in the description.Rate LimitedCanvas ProtectionThe bot will automatically pause and retry; no action needed.Disclaimer: This software is intended for research, organizational assistance, and personal study. Users are solely responsible for adhering to their school's Academic Integrity Policy.
+Phase B: Python SetupVisit Python.org and download the latest version for Windows.CRITICAL: During installation, you MUST check the box that says "Add Python to PATH".Complete the installation.Phase C: Project PreparationDownload this repository as a ZIP file (Green Code button > Download ZIP).Locate the ZIP in your Downloads folder, right-click it, and select Extract All.Open the newly extracted folder.Phase D: Canvas IntegrationLog into your Canvas Settings.Scroll down to Approved Purposes and click + New Access Token.Copy the long character string (Token).Find the file named .env in your project folder, open it with Notepad, and paste your token:Diff+ CANVAS_TOKEN=your_private_token_here
+3. Running the AutomationFollow these steps every time you want to scan for new homework:Open your project folder in File Explorer.Click into the address bar at the top, type cmd, and press Enter.First-time only: Install the required software libraries by pasting this:pip install canvasapi openai python-docx python-dotenv requestsStart the bot: Type the following command:Diff+ python auto_bot.py
+4. Key Features & LogicIntelligent Duplicate CheckThe bot performs a "Smart Scan" before processing. It checks your Completed_Homework folder for existing filenames. If a worksheet is already finished, the bot logs [SKIP] and moves to the next item instantly.Stealth & Human SimulationTo remain undetected, the bot uses the following logic:Varied Delays: It waits between 10–25 seconds between actions to mimic human reading and navigation speeds.Persona Calibration: The AI is instructed to write as "Liam Jackson," a 9th-grade student, using age-appropriate vocabulary to avoid being flagged by professional-grade AI detectors.Automated OrganizationAll work is automatically sorted into class-specific folders:Completed_Homework/Spanish 2/Physical Science/Algebra 1/5. TroubleshootingErrorCauseResolution'python' is not recognizedPath ConfigurationRe-install Python and ensure "Add to PATH" is checked.401 UnauthorizedInvalid TokenYour Canvas Token is incorrect or has expired. Generate a new one in Settings.ConnectionRefusedOllama OfflineEnsure the Ollama app is running in your Windows taskbar.Missing Google DocLink TypeThe bot currently only supports assignments that provide a Google Doc link in the description.Disclaimer: This software is intended for research and personal organization. Users are responsible for ensuring their use of this tool complies with FHSD institutional policies and academic integrity guidelines.
