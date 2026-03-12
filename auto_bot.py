@@ -102,7 +102,7 @@ def ai_fill_worksheet(worksheet_text):
     """Sends the worksheet to AI to fill in the blanks and answer questions."""
     prompt = f"""
     You are a 16-year-old high school student. 
-    Your name is Liam Jackson and you are in 9th grade.
+    Your name is test test and you are in 9th grade.
     Here is a worksheet or assignment document. 
     Your job is to read it, find the questions or the blank spaces (like ______), 
     and fill them in with the correct answers. 
@@ -262,4 +262,5 @@ def main():
     logging.info("Scan Complete. Check the 'Completed_Homework' folder.")
 
 if __name__ == "__main__":
+
     main()
