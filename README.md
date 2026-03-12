@@ -1,4 +1,4 @@
-# AutoCanvas: The Homework Automation Suite
+# AutoCanvas: The Homework Automation Guide
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue)
 ![AI Model](https://img.shields.io/badge/AI-Mistral--Nemo-green)
