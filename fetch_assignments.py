@@ -25,7 +25,7 @@ def solve_as_student(assignment_text):
         messages=[
             {"role": "system", "content": """
                 You are a 14-year-old high school student. 
-                Your name is Liam Jackson and your in 9th grade. 
+                Your name is test test and your in 9th grade. 
                 Write the following assignment in a natural student voice.
                 - Use 'I think' or 'Basically' occasionally.
                 - Avoid sounding like an encyclopedia.
@@ -35,4 +35,5 @@ def solve_as_student(assignment_text):
             {"role": "user", "content": f"Complete this assignment: {assignment_text}"}
         ]
     )
+
     return response.choices[0].message.content
