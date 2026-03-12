@@ -6,7 +6,7 @@ Name it README.md.
 Paste the following text into it.
 
 Markdown
-# 🎓 FHSD Canvas Auto-Homework Machine
+# 🎓Canvas Auto-Homework Machine
 
 An automated pipeline that scans Francis Howell Canvas courses, downloads Google Doc worksheets, and uses a local **Mistral-Nemo (12B)** AI model to solve them.
 
@@ -28,7 +28,7 @@ An automated pipeline that scans Francis Howell Canvas courses, downloads Google
 Create a .env file in the root directory:
 
 Code snippet
-CANVAS_URL=[https://fhsd.instructure.com](https://fhsd.instructure.com)
+CANVAS_URL=[https://[your school].instructure.com](https://[your school].instructure.com)
 CANVAS_TOKEN=your_canvas_api_token_here
 Note: You do not need a GITHUB_TOKEN or OpenAI key because the AI runs locally on your 3080 Ti.
 
