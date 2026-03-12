@@ -1,68 +1,55 @@
-# Autonomous Assignment Processing Pipeline
-**A localized AI-driven automation suite for Canvas LMS integration.**
+# 🤖 AutoCanvas: The Homework Helper
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![NVIDIA](https://img.shields.io/badge/nvidia-76B900?style=for-the-badge&logo=nvidia&logoColor=white)
-![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+This is an automated tool that logs into your Canvas, finds your assignments, and uses AI to solve them for you. It saves the finished work into folders on your computer so you can just copy-paste the answers and turn them in.
 
 ---
 
-## System Overview
-This project provides an end-to-end solution for synchronizing Canvas LMS assignments with local Large Language Models (LLMs). It automates the extraction of Google Doc templates, performs local inference using NVIDIA hardware, and organizes completed outputs into structured directories.
+## 🛑 Read This First
+1. **It’s Free:** You are using your own computer's power to run the AI, so you never have to pay for a subscription.
+2. **It’s Private:** The school cannot see that you are using AI because it runs locally on your machine, not on a website.
+3. **It’s Stealthy:** The bot "types" like a human and adds small delays so it doesn't look like a robot.
 
+---
 
+## 🛠 How to Set It Up (The Easy Way)
 
-## Core Functionalities
-| Feature | Implementation |
-| :--- | :--- |
-| **API Integration** | Bi-directional communication with Canvas LMS REST API. |
-| **Local Inference** | High-performance execution via Ollama (Mistral-Nemo/Llama 3.1). |
-| **Data Extraction** | Regex-based Google Doc link harvesting and DOCX conversion. |
-| **File Management** | Automatic directory stratification based on Course ID/Name. |
-| **Stealth Logic** | Randomized request intervals and simulated typing latency. |
+### 1. Install the "Brain" (Ollama)
+The AI needs a "brain" to think. 
+* Go to [Ollama.com](https://ollama.com/) and click **Download**.
+* Run the installer just like any other game or app.
+* Once it's installed, a little llama icon will appear in your taskbar.
 
-## Technical Requirements
-### Hardware
-* **GPU:** NVIDIA RTX 30-series or 40-series (12GB+ VRAM recommended).
-* **RAM:** 16GB+ (DDR5 preferred for high-speed context swapping).
+### 2. Get the Code
+Since you are on this page, look for the green button at the top right that says **Code**.
+* Click it, then click **Download ZIP**.
+* **Important:** Find that folder in your "Downloads," right-click it, and select **Extract All** (this is how you "unzip" it so it works).
 
-### Software
-* **Ollama Runtime:** Required for local model hosting.
-* **Python 3.10+:** Required for script execution.
+### 3. Install Python
+The script runs on a language called Python.
+* Go to [Python.org](https://www.python.org/downloads/) and download the latest version.
+* **CRITICAL:** When installing, make sure you check the box that says **"Add Python to PATH"** at the bottom of the installer. If you miss this, the bot won't work!
 
-## Installation and Deployment
+### 4. Setup your "Key"
+The bot needs permission to see your Canvas.
+1. Log into Canvas on your browser.
+2. Click **Account** -> **Settings**.
+3. Scroll down to **Approved Purposed** and click **+ New Access Token**.
+4. Copy that long string of random letters.
+5. In the bot folder, find the file named `.env` (open it with Notepad).
+6. Paste your code after `CANVAS_TOKEN=` and save the file.
 
-### 1. Model Preparation
-Initialize the local inference engine by pulling the required model weights:
-```bash
-ollama pull mistral-nemo
-2. Dependency Installation
-Install the required Python modules via pip:
+---
 
-Bash
-pip install canvasapi openai python-docx python-dotenv requests
-3. Environment Configuration
-Create a .env file in the project root. Ensure the CANVAS_URL matches your institution's specific subdomain:
+## 🚀 How to Run It
+1. Open the folder where you put the code.
+2. Click the bar at the top of your file window (where the folder name is), type `cmd`, and hit Enter.
+3. Type this and hit Enter (it installs the last few pieces):
+   `pip install canvasapi openai python-docx python-dotenv requests`
+4. Type this to start the bot:
+   `python auto_bot.py`
 
-Code snippet
-CANVAS_URL=https://<INSTITUTION>.instructure.com
-CANVAS_TOKEN=YOUR_API_ACCESS_TOKEN
-Operational Workflow
-The execution follows a linear pipeline to ensure data integrity:
+---
 
-Scanning: The script queries the Canvas API for unsubmitted assignments.
-
-Parsing: Assignment descriptions are parsed for valid document links.
-
-Inference: The 12B parameter model processes the worksheet text locally.
-
-Finalization: A formatted .docx is generated and saved to the course-specific subdirectory.
-
-Security and Privacy
-Zero-Cloud Traffic: All AI processing is performed on the local GPU; no prompt data is transmitted to third-party providers.
-
-Metadata Scrubbing: It is recommended to clear document metadata prior to final upload.
-
-Token Protection: Ensure the .env file is included in your .gitignore to prevent credential exposure.
-
-This software is intended for research and workflow automation. Users must adhere to their institution's academic honesty policies.
+## 📂 Where is my homework?
+Once the bot finished, a new folder will appear called **Completed_Homework**. 
+Inside, you will see folders for each of your classes (like "Algebra" or "History"). Open them up, and your finished worksheets will be waiting for you!
