@@ -21,7 +21,7 @@ AutoCanvas is a localized tool designed to synchronize with your Canvas LMS acco
 
 #### 1. Install the Artificial Intelligence Framework (Ollama)
 The script requires a local AI engine to process worksheet text and generate answers.
-* Visit the official Ollama website and download the installer.
+* Visit the official Ollama website and download the installer. https://ollama.com/download/windows 
 * Run the setup file as you would any standard application.
 * **Important:** Ensure the Ollama application is running in your system tray before starting the bot.
 * Open your terminal and type `ollama pull mistral-nemo` to download the required AI model.
