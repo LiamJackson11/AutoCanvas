@@ -30,12 +30,12 @@ APP_SETTINGS = {
 # --- 2. CONFIGURATION ---
 BASE_DIR = Path(r"C:\Canvas scanner")
 OUTPUT_DIR = BASE_DIR / "Completed_Homework"
-CANVAS_URL = os.getenv("CANVAS_URL") or "https://fhsd.instructure.com"
+CANVAS_URL = os.getenv("CANVAS_URL") or "[your school link]" #put your school link here
 CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
 AI_MODEL = os.getenv("AI_MODEL") or "mistral-nemo"
 
 IGNORE_LIST = ["Test", "Quiz", "Final Exam", "Physical Education", "Spartan Central", "Industrial Tech"]
-PRIORITY_LIST = ["Spanish 2", "Algebra I", "English I", "Health", "US history", "physical science"]
+PRIORITY_LIST = [""]
 
 if not OUTPUT_DIR.exists():
     OUTPUT_DIR.mkdir(parents=True)
@@ -80,7 +80,7 @@ def is_valid_course(course):
 
 # --- 4. THE PERSONA ENGINE ---
 def ai_fill_worksheet(worksheet_text):
-    prompt = f"You are Liam Jackson, a 16-year-old 9th-grade student.\n"
+    prompt = f"You are [your name], a 15-year-old 9th-grade student.\n" #put your name here
     if APP_SETTINGS["persona"] == "Casual Student":
         prompt += "- Use natural, slightly casual vocabulary. Use phrases like 'I think' or 'Basically'.\n"
         prompt += "- Avoid overly formal AI words like 'moreover' or 'delve'.\n"
