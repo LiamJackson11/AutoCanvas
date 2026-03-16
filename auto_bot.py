@@ -1,287 +1,242 @@
+# auto_bot.py
+
 import os
 import time
 import random  
 import logging
 import re
 import requests
+from pathlib import Path
+from tqdm import tqdm 
 from dotenv import load_dotenv
 from canvasapi import Canvas
 from openai import OpenAI
 from docx import Document
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
-# Load environment variables
 load_dotenv()
 
-# --- 0. CONFIG FROM TYPER.PY ---
-AVG_DELAY = 0.1             
-STD_DEV_DELAY = 0.04        
-MISTAKE_CHANCE = 0.07       
-
-PAUSE_EVERY_MIN_SECONDS = 4
-PAUSE_EVERY_MAX_SECONDS = 15
-PAUSE_DURATION_MIN = 5
-PAUSE_DURATION_MAX = 23
-
-nearby_keys = {
-    'q': 'wa', 'w': 'qase', 'e': 'wsdr', 'r': 'edft', 't': 'rfgy',
-    'y': 'tghu', 'u': 'yhji', 'i': 'ujko', 'o': 'iklp', 'p': 'ol;',
-    'a': 'qwsz', 's': 'awedxz', 'd': 'serfcx', 'f': 'drtgvc', 'g': 'ftyhbv',
-    'h': 'gyujnb', 'j': 'huikmn', 'k': 'jiolm,', 'l': 'kop;,.',
-    'z': 'asx', 'x': 'zsdc', 'c': 'xdfv', 'v': 'cfgb', 'b': 'vghn',
-    'n': 'bhjm', 'm': 'njk,',
+# --- 1. SETTINGS ---
+APP_SETTINGS = {
+    "target_grade": "A",
+    "persona": "Casual Student",
+    "scan_mode": "current", 
+    "stealth_min": 5,
+    "stealth_max": 12,
+    "max_workers": 4
 }
 
-# --- 1. SETTINGS & CREDENTIALS ---
-CANVAS_URL = "https://YourSchool.instructure.com" # put your school where it says YourSchool
+# --- 2. CONFIGURATION ---
+BASE_DIR = Path(r"C:\Canvas scanner")
+OUTPUT_DIR = BASE_DIR / "Completed_Homework"
+CANVAS_URL = os.getenv("CANVAS_URL") or "https://fhsd.instructure.com"
 CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
-OUTPUT_DIR = "Completed_Homework"
+AI_MODEL = os.getenv("AI_MODEL") or "mistral-nemo"
 
-# We use Mistral-Nemo on your 3080 Ti
-AI_MODEL = "mistral-nemo"
+IGNORE_LIST = ["Test", "Quiz", "Final Exam", "Physical Education", "Spartan Central", "Industrial Tech"]
+PRIORITY_LIST = ["Spanish 2", "Algebra I", "English I", "Health", "US history", "physical science"]
 
-if not CANVAS_TOKEN:
-    logging.error("CRITICAL: CANVAS_TOKEN missing from .env!")
-    exit()
+if not OUTPUT_DIR.exists():
+    OUTPUT_DIR.mkdir(parents=True)
 
-# --- 2. INITIALIZATION (LOCAL OLLAMA) ---
-canvas = Canvas(CANVAS_URL, CANVAS_TOKEN)
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
-# This points to your 3080 Ti running Ollama
-client = OpenAI(
-    base_url="http://localhost:11434/v1",
-    api_key="ollama" 
-)
-
-# --- 3. LOGGING SETUP ---
 logging.basicConfig(
-    filename='sys_check.log', 
+    filename=str(BASE_DIR / 'sys_check.log'), 
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Also print to the console so you can watch it work
-if not logging.getLogger().hasHandlers():
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    logging.getLogger().addHandler(console)
+# --- 3. CORE UTILITIES ---
 
-# Ensure output directory exists
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+def sanitize_filename(name):
+    return re.sub(r'[^\w\-_.() ]', '', name).strip()
 
-# --- 4. CORE FUNCTIONS ---
-
-def download_gdoc_as_docx(gdoc_url, filename):
-    """Converts a Google Doc link to a direct .docx download link and saves it."""
+def download_gdoc_as_docx(url, safe_filename):
     try:
-        # Extract the document ID from the URL
-        doc_id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', gdoc_url)
-        if not doc_id_match:
+        doc_id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', url)
+        if not doc_id_match: 
+            logging.warning(f"Invalid Google Doc URL: {url}")
             return None
-        
-        doc_id = doc_id_match.group(1)
-        export_url = f"https://docs.google.com/document/d/{doc_id}/export?format=docx"
-        
-        response = requests.get(export_url)
+        export_url = f"https://docs.google.com/document/d/{doc_id_match.group(1)}/export?format=docx"
+        response = requests.get(export_url, timeout=20)
         if response.status_code == 200:
-            filepath = os.path.join(OUTPUT_DIR, f"TEMP_{filename}.docx")
-            with open(filepath, 'wb') as f:
+            temp_path = OUTPUT_DIR / f"TEMP_{random.randint(100,999)}_{safe_filename}.docx"
+            with open(temp_path, 'wb') as f:
                 f.write(response.content)
-            return filepath
-        return None
+            return temp_path
     except Exception as e:
-        logging.error(f"Failed to download doc: {e}")
-        return None
+        logging.error(f"Download error for {url}: {e}")
+    return None
 
-def extract_text_from_docx(filepath):
-    """Reads all text from a Word document."""
-    doc = Document(filepath)
-    return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+def is_valid_course(course):
+    name = getattr(course, 'name', 'Unknown')
+    if any(word.lower() in name.lower() for word in IGNORE_LIST):
+        return False
+    if getattr(course, 'access_restricted_by_date', False):
+        return False
+    return True
 
+# --- 4. THE PERSONA ENGINE ---
 def ai_fill_worksheet(worksheet_text):
-    """Sends the worksheet to AI to fill in the blanks and answer questions."""
-    prompt = f"""
-    You are a 16-year-old high school student. 
-    Your name is your name and you are in 9th grade (so put your name as your name on the assignment). # edit if you want to change these 
-    Here is a worksheet or assignment document. 
-    Your job is to read it, find the questions or the blank spaces (like ______), 
-    and fill them in with the correct answers. 
+    prompt = f"You are Liam Jackson, a 16-year-old 9th-grade student.\n"
+    if APP_SETTINGS["persona"] == "Casual Student":
+        prompt += "- Use natural, slightly casual vocabulary. Use phrases like 'I think' or 'Basically'.\n"
+        prompt += "- Avoid overly formal AI words like 'moreover' or 'delve'.\n"
     
-    IMPORTANT: Return the ENTIRE completed document text so I can copy-paste it. 
-    Keep your vocabulary to a 9th-grade level. Make it sound natural.
-    
-    Worksheet Text:
-    {worksheet_text}
-    """
-    
-    response = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model=AI_MODEL,
-        temperature=0.8
-    )
-    return response.choices[0].message.content
-
-
-def create_completed_docx(course_name, filename, content):
-    """Creates a new Word document inside a folder named after the course."""
-    # 1. Clean the course name for Windows folder rules
-    safe_course = "".join([c for c in course_name if c.isalnum() or c==' ']).strip()
-    course_folder = os.path.join(OUTPUT_DIR, safe_course)
-
-    # 2. Create the folder if it doesn't exist yet
-    if not os.path.exists(course_folder):
-        os.makedirs(course_folder)
-        logging.info(f"Created new folder for course: {safe_course}")
-
-    # 3. Create the document
-    doc = Document()
-    content = content.replace("```markdown", "").replace("```", "")
-    
-    for line in content.split('\n'):
-        doc.add_paragraph(line)
+    if APP_SETTINGS["target_grade"] == "A":
+        prompt += "- Provide perfect, highly detailed, and completely accurate answers.\n"
         
-    # 4. Save inside the course-specific folder
-    final_path = os.path.join(course_folder, f"[DONE] {filename}.docx")
-    doc.save(final_path)
-    return final_path
+    prompt += "- ONLY return the answers in the exact same format as the original document.\n"
+    prompt += "- Do NOT add any extra formatting, asterisks, or notes.\n"
+    prompt += "- If there are multiple questions, answer each one separately in the same order.\n"
+    prompt += "- if the structure of the worksheet is this for an example: 3. How did Adolf Hitler become chancellor of Germany in 1933? How did he become the Führer and sole head of government in 1934? 4. How did the 1935 Nuremberg laws affect German Jews? 5. Under Nazi racial ideology, what groups were considered racially inferior? put the answers righ below the questions in same format like same font, size, ect. \n"
 
-
-def find_gdoc_links(html_description):
-    """Scans the assignment HTML for any Google Doc URLs."""
-    if not html_description:
-        return []
-    
-    # Standard Google Doc ID pattern
-    pattern = r'https://docs\.google\.com/document/d/[a-zA-Z0-9_-]+'
-    links = re.findall(pattern, html_description)
-    
-    # Remove duplicates to avoid processing the same doc twice
-    return list(set(links))
-
-
-def download_gdoc_as_docx(gdoc_url, assignment_name):
-    """Converts a Google Doc link to a download link and saves the file."""
-    try:
-        doc_id_match = re.search(r'/d/([a-zA-Z0-9_-]+)', gdoc_url)
-        if not doc_id_match:
-            return None
-        
-        doc_id = doc_id_match.group(1)
-        # Force Google to export as a Word file
-        export_url = f"https://docs.google.com/document/d/{doc_id}/export?format=docx"
-        
-        response = requests.get(export_url)
-        if response.status_code == 200:
-            # Clean name for the file system
-            safe_name = "".join([c for c in assignment_name if c.isalnum() or c==' ']).strip()
-            filepath = os.path.join("Completed_Homework", f"TEMP_{safe_name}.docx")
-            
-            with open(filepath, 'wb') as f:
-                f.write(response.content)
-            return filepath
-        return None
-    except Exception as e:
-        logging.error(f"Download failed: {e}")
-        return None
-
-
-def main():
-    logging.info("System Check: Initializing...")
-    
-    # 1. Stealth Delay
-    start_wait = random.randint(10, 60)
-    logging.info(f"Stealth delay: waiting {start_wait}s before scanning...")
-    time.sleep(start_wait)
+    prompt += "- Ensure your answers match the style and formatting of the original document.\n"
+    prompt += "- Maintain the exact same paragraph structure and spacing.\n"
+    prompt += "- Replace only the answer portions with your responses.\n"
+    prompt += "- Keep all question text exactly as it appears in the original.\n"
+    prompt += "- Only fill in the blank spaces or answer areas where appropriate.\n\n"
+    prompt += f"Worksheet Text:\n{worksheet_text}"
     
     try:
-        user = canvas.get_current_user()
-        courses = user.get_favorite_courses()
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model=AI_MODEL,
+            temperature=0.3
+        )
+        return response.choices[0].message.content
     except Exception as e:
-        logging.error(f"Failed to connect to Canvas: {e}")
-        return
+        logging.error(f"AI Service Offline: {e}")
+        return None
 
-    # Create the output folder if it's missing
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
+# --- 5. DOCUMENT EDITING FUNCTION ---
+def process_assignment(course_folder, course_name, assignment, url, i):
+    safe_assign = sanitize_filename(assignment.name)
+    file_label = f"[DONE] {safe_assign}_part{i}"
+    final_path = course_folder / f"{file_label}.docx"
 
-        for course in courses:
-            logging.info(f"--- Scanning Course: {course.name} ---")
-            time.sleep(random.uniform(5.5, 10.0)) 
+    if final_path.exists():
+        logging.info(f"Skipping already processed: {file_label}")
+        return None
+
+    temp_path = download_gdoc_as_docx(url, file_label)
+    if not temp_path:
+        return None
+
+    try:
+        doc = Document(temp_path)
+        text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
         
-            # We add per_page=100 to grab everything in one big chunk
-            assignments = list(course.get_assignments(per_page=100))
-            
-            if not assignments:
-                logging.info(f"  -> No assignments found at all for {course.name}")
-            continue
+        solved = ai_fill_worksheet(text)
+        
+        if solved:
+            # Edit the original document instead of creating a new one
+            edit_original_document(temp_path, solved, course_folder, file_label)
+            logging.info(f"[SUCCESS] {course_name} -> {file_label}")
+            return True
+    except Exception as e:
+        logging.error(f"Error in {file_label}: {e}")
+    finally:
+        if temp_path.exists():
+            os.remove(temp_path)
+    
+    return False
 
-        for assignment in assignments:
-                try:
-                    # Check if you already submitted it
-                    submission = assignment.get_submission(user.id)
-                    if submission.workflow_state != 'unsubmitted':
-                        # This skips anything already graded or turned in
-                        continue
+def edit_original_document(original_path, solved_text, course_folder, file_label):
+    # Read the original document
+    original_doc = Document(original_path)
+    
+    # Split the solved text into lines
+    solved_lines = [line.strip() for line in solved_text.split('\n') if line.strip()]
+    
+    # Create a new document with exact same structure
+    new_doc = Document()
+    
+    # Copy all styles and paragraphs from original
+    for para in original_doc.paragraphs:
+        new_para = new_doc.add_paragraph()
+        new_para.style = para.style
+        
+        # Add the text content of the paragraph
+        new_para.add_run(para.text)
+    
+    # Save the modified document
+    output_path = course_folder / f"{file_label}.docx"
+    new_doc.save(output_path)
 
-                    description = getattr(assignment, 'description', "") or ""
-                    # If there's no description, don't even bother
-                    if not description:
-                        continue
+# --- 6. THREADING SUPPORT ---
+def process_course(course):
+    course_name = getattr(course, 'name', 'Unknown Course')
+    print(f"\n📂 Entering Class: {course_name}")
+    
+    safe_course = sanitize_filename(course_name)
+    course_folder = OUTPUT_DIR / safe_course
+    course_folder.mkdir(parents=True, exist_ok=True)
 
-                    safe_name = "".join([c for c in assignment.name if c.isalnum() or c==' ']).strip()
-                    
-                    # --- NEW CHECK: Skip if we already generated a file for this ---
-                    safe_course = "".join([c for c in course.name if c.isalnum() or c==' ']).strip()
-                    expected_filepath = os.path.join(OUTPUT_DIR, safe_course, f"[DONE] {safe_name}.docx")
-                    
-                    if os.path.exists(expected_filepath):
-                        logging.info(f"  [SKIP] Already finished locally: {assignment.name}")
-                        continue
-                    # ---------------------------------------------------------------
-
-                    # Step 1: Find the Links
-                    gdoc_links = find_gdoc_links(description)
-                    
-                    if not gdoc_links:
-                        # We only log this if we're actively looking for docs
-                        continue
-                    
-                    # Step 2: Download
-                    gdoc_url = gdoc_links[0]
-                    logging.info(f"  [FOUND] Downloading template for: {assignment.name}")
-                    temp_filepath = download_gdoc_as_docx(gdoc_url, safe_name)
-                    
-                    if temp_filepath:
-                        # Step 3: AI Solve
-                        logging.info(f"  [AI] Solving worksheet: {assignment.name}...")
-                        worksheet_text = extract_text_from_docx(temp_filepath)
-                        completed_text = ai_fill_worksheet(worksheet_text)
-                        
-                        # Step 5: Save the finished file (added course.name here)
-                        final_file = create_completed_docx(course.name, safe_name, completed_text)
-                        logging.info(f"[SUCCESS] Saved to folder: {course.name} -> {final_file}")
-                        
-                        # Cleanup
-                        if os.path.exists(temp_filepath):
-                            os.remove(temp_filepath)
-                    
-                    # Wait between assignments so it looks human
-                    time.sleep(random.uniform(12.0, 25.0))
-
-                except Exception as inner_e:
-                    logging.warning(f"Skipping assignment {getattr(assignment, 'name', 'Unknown')} due to error: {inner_e}")
-                    continue
-
-                except Exception as e:
-                    logging.error(f"Error in {course.name}: {e}")
+    assignments = list(course.get_assignments())
+    
+    # Process assignments in this course with threading
+    futures = []
+    with ThreadPoolExecutor(max_workers=APP_SETTINGS["max_workers"]) as executor:
+        for assignment in tqdm(assignments, desc=f"   Processing {course_name[:15]}...", unit="assign"):
+            if any(word.lower() in assignment.name.lower() for word in IGNORE_LIST):
                 continue
 
-    logging.info("Scan Complete. Check the 'Completed_Homework' folder.")
+            # Link Extraction
+            desc = getattr(assignment, 'description', "") or ""
+            links = re.findall(r'https://docs\.google\.com/document/d/[a-zA-Z0-9_-]+', desc)
+            
+            if not links:
+                continue
+
+            safe_assign = sanitize_filename(assignment.name)
+            
+            for i, url in enumerate(links, start=1):
+                future = executor.submit(process_assignment, course_folder, course_name, assignment, url, i)
+                futures.append(future)
+        
+        # Wait for all tasks to complete
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+            except Exception as e:
+                logging.error(f"Error processing assignment: {e}")
+
+# --- 7. MAIN PROCESSOR ---
+def main():
+    print("--- 🚀 STARTING SMOOTH INSTALLER ---")
+    try:
+        canvas = Canvas(CANVAS_URL, CANVAS_TOKEN)
+        user = canvas.get_current_user()
+        raw_courses = user.get_courses(enrollment_state='active')
+        courses = [c for c in raw_courses if is_valid_course(c)]
+        
+        # Priority Sort
+        courses.sort(key=lambda c: 0 if any(p.lower() in c.name.lower() for p in PRIORITY_LIST) else 1)
+        print(f"Found {len(courses)} active courses. Starting sequence...")
+
+    except Exception as e:
+        logging.critical(f"CRITICAL ERROR during initialization: {e}")
+        print(f"CRITICAL ERROR: {e}")
+        return
+
+    # Process all courses with threading
+    futures = []
+    with ThreadPoolExecutor(max_workers=APP_SETTINGS["max_workers"]) as executor:
+        for course in courses:
+            future = executor.submit(process_course, course)
+            futures.append(future)
+        
+        # Wait for all courses to complete
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+            except Exception as e:
+                logging.error(f"Error processing course: {e}")
+
+    print("\n--- ✨ ALL CLASSES COMPLETE ---")
 
 if __name__ == "__main__":
     main()
-    logging.info("========================================")
-    logging.info("SCAN COMPLETE: All courses processed.")
-    logging.info("========================================")
-
-    print("\nSuccess! Check your folders for the new work.")

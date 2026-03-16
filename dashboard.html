@@ -1,0 +1,137 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="5"> <title>Bot Live Monitor</title>
+        <style>
+            :root {
+                --bg: #0f172a;
+                --text: #e2e8f0;
+                --glass-bg: rgba(255, 255, 255, 0.03);
+                --glass-border: rgba(255, 255, 255, 0.05);
+                --accent: #38bdf8;
+                --success: #34d399;
+                --danger: #f87171;
+            }
+            body {
+                margin: 0;
+                padding: 2rem;
+                background-color: var(--bg);
+                background-image: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 40%),
+                                  radial-gradient(circle at bottom left, rgba(52, 211, 153, 0.05), transparent 40%);
+                color: var(--text);
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                min-height: 100vh;
+            }
+            h1 { text-align: center; font-weight: 600; margin-bottom: 2rem; letter-spacing: 1px; }
+            
+            /* Bento Grid Layout */
+            .bento-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .bento-wide { grid-column: 1 / -1; }
+            
+            /* Glassmorphism Cards */
+            .glass-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid var(--glass-border);
+                border-radius: 24px;
+                padding: 24px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                display: flex;
+                flex-direction: column;
+            }
+            .glass-card h2 {
+                margin-top: 0;
+                font-size: 1.2rem;
+                color: var(--accent);
+                border-bottom: 1px solid var(--glass-border);
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+            }
+            
+            /* Stats Styling */
+            .stat-number { font-size: 3rem; font-weight: bold; margin: 10px 0; }
+            .text-success { color: var(--success); }
+            .text-danger { color: var(--danger); }
+            
+            /* Lists & Logs */
+            .course-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .badge {
+                background: rgba(255,255,255,0.1);
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+            }
+            .log-box {
+                background: rgba(0,0,0,0.3);
+                border-radius: 12px;
+                padding: 15px;
+                flex-grow: 1;
+                font-family: 'Consolas', monospace;
+                font-size: 0.85rem;
+                overflow-y: auto;
+                max-height: 300px;
+            }
+            .log-line { padding: 3px 0; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.02); }
+            
+            /* Scrollbar */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <h1>Bot Activity Dashboard</h1>
+        
+        <div class="bento-grid">
+            <div class="glass-card">
+                <h2>Total Homework Done</h2>
+                <div class="stat-number">1</div>
+                <p>Files successfully generated and saved.</p>
+            </div>
+            
+            <div class="glass-card">
+                <h2>Health Check</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                    <div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Successful Turns</div>
+                        <div class="stat-number text-success">1</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Errors Logged</div>
+                        <div class="stat-number text-danger">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <h2>Course Breakdown</h2>
+                <div style="overflow-y: auto; max-height: 200px; padding-right: 10px;">
+                    <div class='course-item'><span>Algebra I Semester 2</span><span class='badge'>0 files</span></div><div class='course-item'><span>English I Sem 2  Bowers 2526</span><span class='badge'>0 files</span></div><div class='course-item'><span>Health  0807803  Thomas  Period 4C</span><span class='badge'>0 files</span></div><div class='course-item'><span>Intro to Art S2  0202002  Davis  Period 4A</span><span class='badge'>0 files</span></div><div class='course-item'><span>Physical Science 20252026 S2</span><span class='badge'>1 files</span></div>
+                </div>
+            </div>
+            
+            <div class="glass-card bento-wide">
+                <h2>Live Terminal Output (Last 15 lines)</h2>
+                <div class="log-box">
+                    <div class='log-line'>2026-03-12 19:31:32,145 - INFO - Response: GET https://fhsd.instructure.com/api/v1/courses/138809/assignments 200</div><div class='log-line'>2026-03-12 19:31:32,231 - INFO -   [SOLVING] E1 Odyssey Creative Task Choice Board for English I Sem. 2 - Bowers (25-26)</div><div class='log-line'>2026-03-12 19:31:53,577 - INFO - --- Deep Scanning: Health - 0807803 - Thomas - Period 4C ---</div><div class='log-line'>2026-03-12 19:31:53,578 - INFO - Request: GET https://fhsd.instructure.com/api/v1/courses/140381/assignments</div><div class='log-line'>2026-03-12 19:31:54,646 - INFO - Response: GET https://fhsd.instructure.com/api/v1/courses/140381/assignments 200</div><div class='log-line'>2026-03-12 19:31:54,739 - INFO - --- Deep Scanning: Intro to Art S2 - 0202002 - Davis - Period 4A ---</div><div class='log-line'>2026-03-12 19:31:54,740 - INFO - Request: GET https://fhsd.instructure.com/api/v1/courses/138572/assignments</div><div class='log-line'>2026-03-12 19:31:55,358 - INFO - Response: GET https://fhsd.instructure.com/api/v1/courses/138572/assignments 200</div><div class='log-line'>2026-03-12 19:31:55,427 - INFO - --- Deep Scanning: Physical Science 2025-2026 S2 ---</div><div class='log-line'>2026-03-12 19:31:55,427 - INFO - Request: GET https://fhsd.instructure.com/api/v1/courses/139528/assignments</div><div class='log-line'>2026-03-12 19:31:56,446 - INFO - Response: GET https://fhsd.instructure.com/api/v1/courses/139528/assignments 200</div><div class='log-line'>2026-03-12 19:31:56,560 - INFO -   [SOLVING] AMI Day #3 for Physical Science 2025-2026 S2</div><div class='log-line'>2026-03-12 19:33:28,001 - INFO - HTTP Request: POST http://localhost:11434/v1/chat/completions "HTTP/1.1 200 OK"</div><div class='log-line'>2026-03-12 19:33:28,020 - INFO -   [SUCCESS] [DONE] AMI Day 3_part1</div><div class='log-line'>2026-03-12 19:33:46,141 - INFO -   [SOLVING] Lewis Dot Structures and Ions Practice for Physical Science 2025-2026 S2</div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    
