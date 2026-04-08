@@ -1,0 +1,5 @@
+canvasapi
+openai
+python-docx
+python-dotenv
+requests
