@@ -111,7 +111,7 @@ ollama pull mistral-nemo
 
 **Option A — Clone with Git:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/AutoCanvas.git
+git clone https://github.com/LiamJackson11/AutoCanvas.git
 cd AutoCanvas
 ```
 
