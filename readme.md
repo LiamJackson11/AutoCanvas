@@ -129,15 +129,22 @@ cd AutoCanvas
 
 ---
 
-### Step 4 — Install Python Dependencies
+### Step 4 — Install Dependencies
 
-Inside the project folder, run:
+**macOS / Linux** — run the installer (handles everything):
 
 ```bash
-pip install -r requirements.txt
+bash install.sh
 ```
 
-This installs everything AutoCanvas needs in one command.
+**Windows** — set up the virtual environment manually:
+
+```bat
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+```
+
+The installer creates a `.venv` folder that keeps AutoCanvas's packages isolated from the rest of your system.
 
 ---
 
@@ -300,23 +307,64 @@ ollama pull llama3.2
 
 ### Windows — double-click `start.bat`
 
-No terminal needed. Just double-click `start.bat` in the project folder. It automatically finds Python (tries the Windows Python Launcher `py` first, then falls back to `python`) and keeps the window open if there's an error.
+No terminal needed. Just double-click `start.bat` in the project folder. It activates the virtual environment automatically and keeps the window open if there's an error.
 
-### macOS / Linux — run `start.sh`
+> **First time on Windows?** Set up the virtual environment manually once:
+> ```bat
+> python -m venv .venv
+> .venv\Scripts\pip install -r requirements.txt
+> ```
+> Then double-click `start.bat` as normal from then on.
 
-The first time, make it executable:
+---
+
+### macOS — run the installer, then double-click
+
+**Step 1 — Run the installer once:**
 
 ```bash
-chmod +x start.sh
+bash install.sh
 ```
 
-Then launch it:
+The installer will:
+- Check Python ≥ 3.10 and Ollama (with install instructions if missing)
+- Create a `.venv` virtual environment and install all packages
+- Create `start.command` — a macOS-native double-clickable launcher
+
+**Step 2 — Launch AutoCanvas:**
+
+- **Double-click** `start.command` in Finder
+- Or from a terminal: `./start.sh`
+
+`start.sh` automatically checks if Ollama is running and tries to start it if not.
+
+---
+
+### Linux — run the installer
+
+```bash
+bash install.sh
+```
+
+The installer will:
+- Check Python ≥ 3.10 and Ollama (with distro-specific install commands if missing)
+- Create a `.venv` virtual environment and install all packages
+- Optionally register AutoCanvas in your **application launcher** (GNOME, KDE, etc.)
+
+**Launch:**
 
 ```bash
 ./start.sh
 ```
 
-Or double-click it in Finder (macOS) — right-click → Open if your system asks for confirmation.
+Or use the Make targets if you prefer:
+
+```bash
+make run      # launch AutoCanvas
+make setup    # re-run the config wizard
+make monitor  # start the dashboard
+make clean    # remove generated files
+```
 
 ---
 
@@ -324,19 +372,27 @@ Or double-click it in Finder (macOS) — right-click → Open if your system ask
 
 ```
 AutoCanvas/
+│
+│  ── Launchers ──────────────────────────────────────────────────
+├── install.sh              ← Mac/Linux: run once to set everything up
+├── start.sh                ← Mac/Linux: launch AutoCanvas
+├── start.command           ← macOS: double-click in Finder (created by install.sh)
 ├── start.bat               ← Windows: double-click to launch
-├── start.sh                ← Mac/Linux: ./start.sh to launch
-├── run.py                  ← Unified launcher & menu
+├── Makefile                ← Mac/Linux power users: make run / make setup
+│
+│  ── Application ─────────────────────────────────────────────────
+├── run.py                  ← Unified menu (start here)
 ├── setup.py                ← Interactive configuration wizard
-├── auto_bot.py             ← Main bot logic
-├── monitor.py              ← Dashboard generator
+├── auto_bot.py             ← Main bot: scan, solve, confirm, submit
+├── monitor.py              ← Live dashboard generator
 ├── requirements.txt        ← Python dependencies
 │
-├── .env                    ← Your credentials (auto-generated, git-ignored)
-├── dashboard.html          ← Live dashboard (auto-generated)
-├── sys_check.log           ← Activity log (auto-generated)
-│
-└── Completed_Homework/     ← Output folder (auto-generated)
+│  ── Generated (git-ignored) ──────────────────────────────────────
+├── .env                    ← Your credentials — never commit this
+├── .venv/                  ← Virtual environment (created by install.sh)
+├── dashboard.html          ← Live dashboard page
+├── sys_check.log           ← Activity log
+└── Completed_Homework/     ← Output folder
     ├── Physical Science/
     │   └── [DONE] AMI Day 3_part1.docx
     └── English I/
