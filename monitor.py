@@ -1,10 +1,12 @@
 import os
 import time
+import html
 from pathlib import Path
 
-LOG_FILE = "sys_check.log"
-HW_DIR = "Completed_Homework"
-HTML_FILE = "dashboard.html"
+BASE_DIR = Path(__file__).parent
+LOG_FILE = str(BASE_DIR / "sys_check.log")
+HW_DIR = str(BASE_DIR / "Completed_Homework")
+HTML_FILE = str(BASE_DIR / "dashboard.html")
 
 def get_log_summary():
     """Reads the last few lines of the log file and counts errors/successes."""
@@ -46,14 +48,14 @@ def generate_html(recent_logs, success_count, error_count, hw_stats):
     courses_html = ""
     total_files = 0
     for course, count in hw_stats.items():
-        courses_html += f"<div class='course-item'><span>{course}</span><span class='badge'>{count} files</span></div>"
+        courses_html += f"<div class='course-item'><span>{html.escape(course)}</span><span class='badge'>{count} files</span></div>"
         total_files += count
 
     if not courses_html:
         courses_html = "<div class='log-line'>No courses processed yet...</div>"
 
     # Format the logs into HTML
-    logs_html = "".join([f"<div class='log-line'>{line.strip()}</div>" for line in recent_logs])
+    logs_html = "".join([f"<div class='log-line'>{html.escape(line.strip())}</div>" for line in recent_logs])
 
     html_content = f"""
     <!DOCTYPE html>
